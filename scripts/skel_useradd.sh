@@ -21,17 +21,19 @@ create_user_pass(){
 
     for username in "${!users[@]}"; do
         password="${users[$username]}"
-        echo "Usuario: $username (Contra: $password)"
+        echo -e "\nUsuario: $username (Contra: $password)"
 
         sudo useradd -mg users -s $(which zsh) $username
+        # TODO: group ??
         sudo passwd $username
 
-        sudo ln -s /home/$username/dotfiles/.zshrc /home/$username
-        sudo ln -s /home/$username/dotfiles/.vimrc /home/$username
-        sudo ln -s /home/$username/dotfiles/.vimrc /home/$username/.config/nvim/init.vim
-        sudo ln -s /home/$username/dotfiles/.config/tmux /home/$username/.config
-        sudo ln -s /home/$username/dotfiles/.config/bat /home/$username/.config
-        sudo ln -s /home/$username/dotfiles/.config/lf /home/$username/.config
+        sudo ln -s "/home/$username/dotfiles/.zshrc" "/home/$username"
+        sudo ln -s "/home/$username/dotfiles/.vimrc" "/home/$username"
+        sudo ln -s "/home/$username/dotfiles/.vimrc" "/home/$username/.config/nvim/init.vim"
+        sudo ln -s "/home/$username/dotfiles/.config/tmux" "/home/$username/.config"
+        sudo ln -s "/home/$username/dotfiles/.config/bat" "/home/$username/.config"
+        sudo ln -s "/home/$username/dotfiles/.config/lf" "/home/$username/.config"
+        sudo ln -s "/home/$username/dotfiles/.gitconfig" "/home/$username"
     done
 }
 

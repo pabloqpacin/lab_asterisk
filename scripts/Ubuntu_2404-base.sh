@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 
-
-# wget 192.168.1.42:8000/scripts/ubuntu-base.sh && bash ubuntu-base.sh
-
 # # En un Ubuntu Desktop 24.04 LTS como usuario (no root):
-# bash -c "$(curl -fsSL https://github.com/pabloqpacin/lab_asterisk/raw/main/scripts/mv_ubuntu.sh)"
+# wget -q https://github.com/pabloqpacin/lab_asterisk/raw/main/scripts/Ubuntu_2404-base.sh
+# bash Ubuntu_2404-base.sh
 
 # REFS: dotfiles (debubu, ubuntuserver), proyecto_lemp_compose (lxc debian)
 
@@ -16,26 +14,13 @@
 
 set_variables() {
     sa_update="sudo apt-get update"
-    # read -p "Saltar confirmaciones tipo 'apt install <package>'? [y/N] " opt
+    snap_install="sudo snap install"
     read -p "Saltar confirmaciones tipo 'apt install <package>' e instalar todo? [y/N] " opt
     case $opt in
-        'Y'|'y')
-            sa_install="sudo apt-get install -y"
-            snap_install="sudo snap install -y"
-            ;;
-        *)
-            sa_install="sudo apt-get install"
-            snap_install="sudo snap install"
-        ;;
+        'Y'|'y') sa_install="sudo apt-get install -y" ;;
+        *)       sa_install="sudo apt-get install"    ;;
     esac
-    # read -p "Instalar TODO (nvim, rust, zsh...)? [y/N] " opt
-    # case $opt in
-    #     'Y'|'y') smorgasbord="1" ;;
-    #           *) smorgasbord="0" ;;
-    # esac
 }
-
-# set_x11(){}
 
 apt_update_install(){
     if [ ! -e "/etc/apt/apt.conf.d/99show-versions" ]; then
@@ -47,49 +32,39 @@ apt_update_install(){
     if [ $(systemctl is-enabled ssh) == 'not-found' ]; then
         $sa_install openssh-server
         sudo systemctl enable --now ssh
-    elif [ $(systemctl is-enabled ssh) == 'disable' ]; then
+    elif [ $(systemctl is-enabled ssh) == 'disabled' ]; then
         sudo systemctl enable --now ssh
     fi
+
+    # if [ $(systemctl is-enabled cups) == 'enabled' ]; then
+    #     sudo systemctl disable cups
+    # fi
 
     $sa_install build-essential
     $sa_install --no-install-recommends neofetch
     $sa_install curl git net-tools wget wl-clipboard xclip xsel
     $sa_install bat btm eza flameshot fzf git-delta grc jq lf nmap ripgrep tmux vim
+    # $sa_install alacritty btop cht.sh devilspie fd-find ipcalc kitty mycli zoxide
     # $sa_install --no-install-recommends python3-pip python3-venv oneko
-    # $sa_install btop cht.sh devilspie fd-find ipcalc mycli zoxide
     # $snap_install cheat
 
     if ! command -v bat &>/dev/null && command -v batcat &>/dev/null; then
         sudo mv $(which batcat) /usr/bin/bat
     fi
-    if ! command -v fd &>/dev/null && command -v fdfind &>/dev/null; then
-        sudo mv $(which fdfind) /usr/bin/fd
-    fi
+    # if ! command -v fd &>/dev/null && command -v fdfind &>/dev/null; then
+    #     sudo mv $(which fdfind) /usr/bin/fd
+    # fi
 
-    if ! command -v tldr &>/dev/null; then
-        read -p "Instalar tldr [y/N]? " opt_tldr
-        if [[ $opt_tldr == 'y' ]]; then
+    # if ! command -v tldr &>/dev/null; then
+    #     read -p "Instalar tldr [y/N]? " opt_tldr
+    #     if [[ $opt_tldr == 'y' ]]; then
             $sa_install tldr
             if [ ! -d ~/.local/share ]; then
                 mkdir ~/.local/share
             fi
             tldr --update
-        fi
-    fi
-}
-
-setup_vbox_additions(){
-
-    # $sa_install virtualbox-guest-utils virtualbox-guest-x11
-    # # ...
-    # # /etc/gdm3/custom.conf
-    # # ...
-
-    # opt_vbox=''
-    # while [ $opt_vbox != 'y' ]; do
-    # read -p "En la barra de VirtualBox, pincha en 'Devices' y en 'Insert Guest Additions CD Image'. Pulsa 'y' [y/n]"
-    # done
-    
+    #     fi
+    # fi
 }
 
 clone_symlink_dotfiles() {
@@ -118,7 +93,7 @@ clone_symlink_dotfiles() {
         if [ -e ~/.vimrc ]; then mv ~/.vimrc{,.bak}; fi
         ln -s ~/dotfiles/.vimrc ~/ &&
         sudo ln -s $HOME/dotfiles/.vimrc /root/
-        # sed -i 's/nvim/vim/g' ~/dotfiles/.zshrc
+        # sed -i "s/'nvim'/'vim'/g" ~/dotfiles/.zshrc
     fi
     if [ ! -L ~/.gitconfig ]; then
         sed -i "s/pabloqpacin/$USER/" ~/dotfiles/.gitconfig &&
@@ -135,7 +110,9 @@ setup_zsh(){
         bash $HOME/dotfiles/scripts/setup/omz-msg_random_theme.sh
     fi
     
-    chsh -s $(which zsh) $USER
+    if [ $(echo $SHELL | awk -F '/' '{print $(NF)}') != 'zsh' ]; then
+        sudo chsh -s $(which zsh) $USER
+    fi
     
     if [ ! -L ~/.zshrc ]; then
         mv ~/.zshrc{,.bak} &&
@@ -161,22 +138,24 @@ setup_nvim(){
     fi
 
     # TODO: revisar recomendaciones del desarrollador; quizá usar otro plugin-manager este verano
-    git clone --depth 1 https://github.com/wbthomason/packer.nvim \
-     ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-
-    if [ ! -L ~/.config/nvim ]; then
-        ln -s ~/dotfiles/.config/nvim ~/.config
-        sudo mkdir -p /root/.config/nvim &&
-            sudo ln -s ~/dotfiles/.vimrc /root/nvim/init.vim
+    if [ ! -d ~/.local/share/nvim/site/pack/packer ]; then
+        git clone --depth 1 https://github.com/wbthomason/packer.nvim \
+            ~/.local/share/nvim/site/pack/packer/start/packer.nvim
     fi
 
-    cd ~/.config/nvim && {
-        read -p "Skip error messages with <Enter>, then do :so :PackerSync :qa " null
-        nvim lua/pabloqpacin/packer.lua
-        read -p "Skip error messages with <Enter>, then do :Mason " null
-        nvim after/plugin/lsp.lua
-        cd $HOME
-    }
+    if [ ! -L ~/.config/nvim ]; then
+        sudo mkdir -p /root/.config/nvim &&
+        sudo ln -s ~/dotfiles/.vimrc /root/.config/nvim/init.vim
+
+        ln -s ~/dotfiles/.config/nvim ~/.config
+        cd ~/.config/nvim && {
+            read -p "Pasa los mensajes de error con <INTRO>, luego escribe :so <INTRO>, :PackerSync <INTRO> y :qa <INTRO> " null
+            nvim lua/pabloqpacin/packer.lua
+            read -p "Pasa los mensajes de error con <INTRO>, luego escribe :Mason <INTRO> y :qa <INTRO> " null
+            nvim after/plugin/lsp.lua
+            cd $HOME
+        }
+    fi
 }
 
 install_rust(){
@@ -189,19 +168,31 @@ install_rust(){
 }
 
 setup_docker_portainer(){
-    sh <(curl -sSL https://get.docker.com)
-    sudo usermod -aG docker $USER
+
+    if ! command -v docker &>/dev/null; then
+        sh <(curl -sSL https://get.docker.com)
+        sudo usermod -aG docker $USER
+    fi
 
     if ! sudo docker ps -a --format '{{.Names}}' | grep -q "portainer"; then
-        sudo docker run -d --name portainer --restart=always -p 8000:8000 -p 9443:9443  \
+        sudo docker run -d --name portainer --restart=always -p 8008:8000 -p 9443:9443  \
             -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data \
             portainer/portainer-ce:latest
+
+        sleep 3 && xdg-open https://localhost:9443 &>/dev/null
     fi
 
     # docker-desktop?
 }
 
 install_gui_pkgs(){
+
+    if ! command -v anydesk &>/dev/null && ! flatpak list 2>/dev/null | grep -q 'anydesk'; then
+        wget -qO - https://keys.anydesk.com/repos/DEB-GPG-KEY | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/anydesk-archive-keyring.gpg
+        echo "deb http://deb.anydesk.com/ all main" | sudo tee /etc/apt/sources.list.d/anydesk-stable.list
+        $sa_update && $sa_install anydesk
+        sudo systemctl disable anydesk
+    fi
 
     if ! command -v brave-browser &>/dev/null; then
         sudo curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg \
@@ -212,27 +203,51 @@ install_gui_pkgs(){
         $sa_update && $sa_install brave-browser
     fi
 
-    if ! command -v wireshark &>/dev/null; then
-        $sa_update && $sa_install wireshark tshark
-        sudo usermod -aG wireshark $USER
+    if ! command -v codium &>/dev/null; then
+        wget -qO - https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg \
+            | gpg --dearmor \
+            | sudo dd of=/usr/share/keyrings/vscodium-archive-keyring.gpg
+        echo 'deb [ signed-by=/usr/share/keyrings/vscodium-archive-keyring.gpg ] https://download.vscodium.com/debs vscodium main' \
+            | sudo tee /etc/apt/sources.list.d/vscodium.list
+        $sa_update && $sa_install codium
+        
+        # case $XDG_SESSION_TYPE in 'x11')
+            $sa_install devilspie
+            ln -s ~/dotfiles/.devilspie ~/
+            ln -s ~/dotfiles/.config/autostart ~/.config
+            bash ~/dotfiles/scripts/setup/codium-extensions.sh
+            codium &
+            sleep 2 && pkill codium
+            # rm $HOME/.config/VSCodium/User/settings.json && \
+            ln -s ~/dotfiles/.config/code/User/settings.json ~/.config/VSCodium/User
+        #     ;;
+        # esac
     fi
 
-    if ! command -v keepassxc &>/dev/null; then
-        $sa_install keepassxc
-        mkdir ~/KeePassXC
-        # yes 'changeme' | head -n 2 | keepassxc-cli db-create ~/KeePassXC/example.kdbx -p
-        # keepassxc-cli add -u pablo.quevedo@setesur.com ~/KeePassXC/Passwords.kdbx GoogleWorkspace -p
+    # if ! command -v keepassxc &>/dev/null; then
+    #     $sa_install keepassxc
+    #     mkdir ~/KeePassXC
+    #     # yes 'changeme' | head -n 2 | keepassxc-cli db-create ~/KeePassXC/example.kdbx -p
+    #     # keepassxc-cli add -u pablo.quevedo@setesur.com ~/KeePassXC/Passwords.kdbx GoogleWorkspace -p
+    #     # xdg-open https://keepassxc.org/docs/KeePassXC_UserGuide#_setup_browser_integration
+    # fi
 
-        # xdg-open https://keepassxc.org/docs/KeePassXC_UserGuide#_setup_browser_integration
-    fi
+    # if ! command -v nmapsi4 &>/dev/null; then
+    #     $sa_install nmapsi4
+    # fi
 
-    if true; then
-        wget -qO - https://keys.anydesk.com/repos/DEB-GPG-KEY | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/anydesk-archive-keyring.gpg
-        echo "deb http://deb.anydesk.com/ all main" | sudo tee /etc/apt/sources.list.d/anydesk-stable.list
-        $sa_update && $sa_install anydesk
-        sudo systemctl disable anydesk
-    fi
+    # if ! command -v wireshark &>/dev/null; then
+    #     read -p "En el menú que aparecerá, selecciona Yes " null  
+    #     $sa_update && $sa_install wireshark tshark
+    #     sudo usermod -aG wireshark $USER
+    # fi
 
+}
+
+info_vbox_additions(){
+    echo -e "\nInstalamos los drivers de VirtualBox:"
+    echo "- VirtualBox: Devices > Insert Guest Additions CD image..."
+    read -p "- Ubuntu: /media/setesur/VBox_GAs_6.1.50 > Click derecho en 'autorun.sh' > Ejecutar " null
 }
 
 
@@ -240,11 +255,8 @@ install_gui_pkgs(){
 
 if true; then
     set_variables
-    # set_x11                                                                   # anydesk da problemas en Wayland
     apt_update_install
-    # setup_vbox_additions
     clone_symlink_dotfiles
-    # install_alacritty_nerdfonts
 
     case $(echo $sa_install | awk '{print $(NF)}') in
         '-y')
@@ -280,14 +292,37 @@ if true; then
     esac
 
     setup_docker_portainer
-    # install_gui_pkgs              # anydesk brave keepassxc nmapsi4 vscodium wireshark
+    install_gui_pkgs            # anydesk brave codium keepassxc nmapsi4 wireshark
+    info_vbox_additions
 fi
 
-
-echo "" && neofetch && sudo grc docker ps -a && echo "" && df -h | grep -B1 '/$'
-[ -f /var/run/reboot-required ] && echo -e "\nReinicia el contenedor.\n"
+sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y && sudo apt autoclean
+echo "" && neofetch && sudo grc docker ps -a && echo "" && df -h | grep -e '/$' -e 'Mo'
+[ -f /var/run/reboot-required ] && echo -e "\nReinicia la máquina.\n"
 
 
 # ---
 
-    # apt show neovim => Vesrion: 0.9.5-6ubuntu2 => ¿Soportará mis plugins? ¡Probemos!
+# # Importante para AnyDesk...
+# set_x11_vbox(){}
+    # $sa_install virtualbox-guest-utils virtualbox-guest-x11
+    # sudo sed -i '/WaylandEnable/s/^#//' /etc/gdm3/custom.conf || {
+    # echo "EN OPCIONES DE VBOX, SELECCIONA '3D Acceleration'"
+    # echo "AL HACER LOGIN, SELECCIONA 'Ubuntu en Xorg"
+    # }
+# }
+
+#    # apt show neovim => Vesrion: 0.9.5-6ubuntu2 => ¿Soportará mis plugins? ¡Probemos!
+
+# install_nerdfonts(){
+#     # if [ ! -d ~/.fonts ]; then mkdir ~/.fonts; fi
+#     if ! fc-cache -v | grep -q 'Fira'; then
+#         wget -qO /tmp/FiraCode.zip 'https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/FiraCode.zip'
+#         sudo unzip -q /tmp/FiraCode.zip -d /usr/share/fonts/FiraCodeNerdFont
+#     fi
+#     if ! fc-cache -v | grep -q 'Cascadia'; then
+#         wget -qO /tmp/CascadiaCode.zip 'https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/CascadiaCode.zip'
+#         sudo unzip -q /tmp/CascadiaCode.zip -d /usr/share/fonts/CascadiaCodeNerdFont
+#     fi
+#     fc-cache -f
+# }
