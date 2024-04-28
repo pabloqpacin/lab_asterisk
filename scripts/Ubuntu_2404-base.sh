@@ -8,6 +8,7 @@
 
 # NOTA 1: en abril de 2024 neovim funciona bien; en un año probablemente habrá que construir el programa manualmente
 # NOTA 2: entonces... no flatpak?
+# NOTA 3: PROBLEMAS MUY IMPORTANTES con anydesk y alacritty en Wayland; decidimos seguir usando 22.04 (clonando otra vm) por ahora!!!!!
 
 # ~~# RESUMEN: paquetes de terminal y gráficos para el usuario ~~
 
@@ -179,7 +180,7 @@ setup_docker_portainer(){
             -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data \
             portainer/portainer-ce:latest
 
-        sleep 3 && xdg-open https://localhost:9443 &>/dev/null
+        sleep 2 && xdg-open https://localhost:9443 &>/dev/null
     fi
 
     # docker-desktop?
@@ -292,7 +293,7 @@ if true; then
     esac
 
     setup_docker_portainer
-    install_gui_pkgs            # anydesk brave codium keepassxc nmapsi4 wireshark
+    install_gui_pkgs            # anydesk brave codium ~~keepassxc nmapsi4 wireshark~~
     info_vbox_additions
 fi
 
