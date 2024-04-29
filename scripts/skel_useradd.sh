@@ -1,4 +1,4 @@
-#!/usr/bin/env
+#!/usr/bin/env bash
 
 prep_skel(){
     skel_dirs=('.config/nvim' 'Descargas' 'Documentos' 'Escritorio' 'Imágenes' 'Música' 'Plantillas' 'Público' 'Vídeos')
@@ -16,7 +16,7 @@ prep_skel(){
     done
 }
 
-create_user_pass(){
+create_user_pass_home(){
     declare -A users
     users=(
         # ["josu"]="prueba12"         # tiene que ser más de 8 chars
@@ -37,18 +37,25 @@ create_user_pass(){
                 setesur) sudo useradd -mg "$username" -G docker,sudo -s $(which zsh) "$username" ;;
                     *) sudo useradd -mg "$username" -G docker -s $(which zsh) "$username" ;;
             esac
-            sudo passwd $username
+            sudo passwd "$username"
 
-            sudo sed -i "s/pabloqpacin/$username/" "/home/$username/dotfiles/.config/alacritty/alacritty.toml"
+            sudo su - "$username" -c "{
+                sed -i s/pabloqpacin/$username/ /home/$username/dotfiles/.config/alacritty/alacritty.toml
 
-            sudo ln -s "/home/$username/dotfiles/.zshrc" "/home/$username"
-            sudo ln -s "/home/$username/dotfiles/.vimrc" "/home/$username"
-            sudo ln -s "/home/$username/dotfiles/.vimrc" "/home/$username/.config/nvim/init.vim"
-            sudo ln -s "/home/$username/dotfiles/.config/alacritty" "/home/$username/.config"
-            sudo ln -s "/home/$username/dotfiles/.config/tmux" "/home/$username/.config"
-            sudo ln -s "/home/$username/dotfiles/.config/bat" "/home/$username/.config"
-            sudo ln -s "/home/$username/dotfiles/.config/lf" "/home/$username/.config"
-            # sudo ln -s "/home/$username/dotfiles/.gitconfig" "/home/$username"
+                ln -s /home/$username/dotfiles/.zshrc /home/$username/.zshrc
+                ln -s /home/$username/dotfiles/.vimrc /home/$username/.vimrc
+                ln -s /home/$username/dotfiles/.vimrc /home/$username/.config/nvim/init.vim
+                ln -s /home/$username/dotfiles/.config/alacritty /home/$username/.config
+                ln -s /home/$username/dotfiles/.config/bottom /home/$username/.config
+                ln -s /home/$username/dotfiles/.config/tmux /home/$username/.config
+                ln -s /home/$username/dotfiles/.config/bat /home/$username/.config
+                ln -s /home/$username/dotfiles/.config/lf /home/$username/.config
+
+                if [ ! -d /home/$username/.local/share/tldr ]; then
+                    mkdir -p /home/$username/.local/share
+                    tldr --update &>/dev/null
+                fi
+            }"
         fi
     done
 }
@@ -56,4 +63,4 @@ create_user_pass(){
 # ---
 
 prep_skel
-create_user_pass
+create_user_pass_home
