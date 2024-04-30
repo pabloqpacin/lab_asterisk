@@ -147,7 +147,7 @@ Explorador de archivos:
         - Import hard drives as VDI: yes
 ```
 
-Configuración impotrante en VirtualBox:
+Configuración importante en VirtualBox:
 
 ```yaml
 General: Advanced:
@@ -271,8 +271,7 @@ Según la [documentación de Docker Desktop](https://docs.docker.com/desktop/ins
 
 En cambio, sí que podemos usar **Portainer** para administrar nuestro entorno Docker de forma gráfica. Podrá administrarlo cualquier usuario en tanto que pueda loguearse como usuario `admin` en Portainer.
 
-Con los siguientes comandos se instala y se accede al panel de administración (en `https://localhost:9443`) para establecer una nueva contraseña (que en este caso hemos creado previamente con KeePassXC).
-
+Con los siguientes comandos se instala y se accede al panel de administración (en `https://localhost:9443`) para establecer una nueva contraseña (que en este caso hemos creado previamente con KeePassXC):
 
 ```bash
 # portainer
