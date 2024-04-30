@@ -1,7 +1,10 @@
 # Máquina Virtual Ubuntu Desktop 24.04 como servidor Asterisk
 
+> OJO: a fecha de abril de 2024, Ubuntu 24.04 en Máquina Virtual no funciona bien con x11 y como Anydesk no funciona en Wayland decidimos usar Ubuntu 22.04. Este documento NO .
+
 - [Máquina Virtual Ubuntu Desktop 24.04 como servidor Asterisk](#máquina-virtual-ubuntu-desktop-2404-como-servidor-asterisk)
   - [NOTAS](#notas)
+    - [objetivos](#objetivos)
     - [comentarios](#comentarios)
     - [documentación](#documentación)
   - [Parte 1: creación de máquina, instalación del sistema, configuración del escritorio](#parte-1-creación-de-máquina-instalación-del-sistema-configuración-del-escritorio)
@@ -22,16 +25,25 @@
 ```md
 # OBJETIVOS
 - creación vm + movidas virtualbox
-- cambiar wayland por x11
-- base.sh
+- cambiar wayland por x11 (por Anydesk)
+- base.sh && users.sh
 - asterisk.md
 ```
 
+
 ## NOTAS
+
+### objetivos
+
+- [ ] tener en cuenta conexiones con vscode/github, mobaxterm, putty...
+
 
 ### comentarios
 
 - En general vamos a <u>evitar los **snaps**</u>. <!--ojo en la app Software, lo que pone de que los snaps se actualizan automáticamente a diario sí o sí...-->
+<!-- - A ver... A la máquina virtual (vm) le ponemos **red puente** para que esté como una sistema más en la red local, como cualquier otro dispositivo|ordenador|equipo de trabajo. ¿La principal ventaja para mí? Poder conectarme desde mi terminal en mi anfitrión para configurar cosas. Esto es importante para mí porque a ver, aunque las vms funcionan bien pues hay una latencia con las ventanas y cosas así; no es una experiencia nativa y se nota, sin más. Entonces yo me conecto con `ssh` y pista. ~~En fin, está bien que sea un Ubuntu Desktop para tocar las cosas y hacerlo más ameno PERO si el objetivo de la máquina es dar servicio de telefonía VoIP es mejor que sea un server *headless*, purita terminal -- y por supuesto que disfruteis de la experiencia Linux en algún ordenador medio viejuno que tengáis por ahí, alguno que no sea capaz de cumplir con las exigencias de Windows y a los que Linux pueda darles vida de nueva.~~ -->
+<!-- - Yo me conecto a la vm con un simple `ssh` desde mi terminal el anfitrión. En general, vamos a preferir establecer conexiones remotas mediante **SSH**. Este sistema Ubuntu es Linux, lo que significa que la interfaz de comandos es **BASH**. En nuestro caso, **ZSH** con algunos plugins para mejorar la experiencia en la terminal.<br> -->
+
 
 ### documentación
 
@@ -69,6 +81,8 @@ Antes de encenderla, nos vamos a las opciones y configuramos estas característi
 ```yaml
 General: Advanced:
     Shared Clipboard: Bidirectional
+# Display:                                                                          # for Wayland in my PopOS host...
+#     Enable 3D Acceleration: yes                                                   # for Wayland in my PopOS host...
 Audio:
     Enable Audio Input: yes
 Network: Adapter 1:
@@ -189,9 +203,9 @@ bash -c "$(curl -fsSL https://github.com/pabloqpacin/lab_asterisk/raw/main/scrip
 
 El script está en este mismo repositorio, en [/scripts/ubuntu-base.sh](/scripts/ubuntu-base.sh). A grandes rasgos, el script hace lo siguiente:
 
-- [ ] Cambiar Wayland por x11 en la configuración por defecto
+- [ ] Cambiar Wayland por x11 en la configuración por defecto (**PANTALLA DE INICIO**)
 - [ ] Actualizar el sistema
-- [ ] Instalar herramientas de terminal: foo, bar
+- [ ] Instalar herramientas de terminal: bat lf tmux zsh...
 - [ ] Clonar [mis dotfiles](https://github.com/pabloqpacin/dotfiles) y establecer algunos enlaces simbólicos (a mis archivos de configuración para los usuarios `setesur` y `root`)
 - [ ] Instalar Docker, Docker Desktop y Portainer
 - [ ] Instalar aplicaciones gráficas:
@@ -201,8 +215,12 @@ El script está en este mismo repositorio, en [/scripts/ubuntu-base.sh](/scripts
   - [ ] **VSCodium**: editor de texto y código, fork open source de VSCode
   - [ ] **Nmapsi4** y **Wireshark**: monitoreo de redes
 
+---
 
-Foo y tal.
+> PROBLEMA: incompatibilidad anydesk & alacritty con wayland, y problemas al cambiar a x11; decidimos usar otra vm con ubuntu 22.04 que ya tenía ready
+
+
+<!-- Foo y tal. -->
 
 
 ### Configuración del Escritorio (2)

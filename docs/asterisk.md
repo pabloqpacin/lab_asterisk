@@ -170,7 +170,7 @@ sudo asterisk -x 'sip show channels'
 xdg-open https://www.zoiper.com/en/voip-softphone/download/zoiper5/for/linux-deb
 
 # Instalar paquete y asegurar que las dependencias se instalan también
-sudo dpkg -i ~/Downloads/Zoiper*.deb && sudo apt install --fix-broken
+sudo dpkg -i $(xdg-user-dir DOWNLOAD)/Zoiper5*.deb && sudo apt install --fix-broken
 
 # Abrir la aplicación zoiper (GUI)
 ```
@@ -180,6 +180,7 @@ zoiper5:
     Login:
       - Username: ext102@localhost      # podríamos usar IPv4 o dominio si DNS
       - Password: s1234
+    Hostname: localhost
     Authentication and Outbound proxy:
       - Optional: yes
       - Authentication username: ext102
@@ -204,8 +205,9 @@ You will miss on all these features:
 Zoiper IAX SIP VOIP Softphone:
     Terms and Data Disclosure: Agree & Continue
     Account setup:
-        - Username: ext102@192.168.1.33     # OJO, según IP del UbuntuServer... # TODO: hacer fija
+        - Username: ext101@192.168.1.205        # OJO, según IP del UbuntuServer...
         - Password: s1234
+        - Hostname: 192.168.1.205
         - My provider/PBX requires an auth username or outbound proxy: yes
         - Authentication username: ext101
 ```
@@ -266,6 +268,13 @@ bat-ff /var/log/asterisk/cdr-csv/Master.csv || \
     -- Channel SIP/ext101-00000002 left 'native_rtp' basic-bridge <12bf7766-0607-47bd-8852-28a5fc802815>
     -- Channel SIP/ext102-00000003 left 'native_rtp' basic-bridge <12bf7766-0607-47bd-8852-28a5fc802815>
   == Spawn extension (setesur, 102, 1) exited non-zero on 'SIP/ext101-00000002'
+```
+
+```bash
+# Que no empiece automáticamente
+if [ -e ~/.config/autostart/Zoiper5.desktop ]; then
+  mv ~/.config/autostart/Zoiper5.desktop{,.bak}
+fi
 ```
 
 ### 2. Reproducir un fichero de Audio con Playback
