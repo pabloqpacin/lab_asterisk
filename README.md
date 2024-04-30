@@ -13,7 +13,7 @@
 
 | Doc                                           | Descripción
 | ---                                           | ---
-| ~~[mv_ubuntu_2404](/docs/mv_ubuntu_2404.md)~~ | ~~Puesta en marcha de Ubuntu 24.04 desde cero; <br>PROBLEMAS con Wayland/X11 para Anydesk~~
+| ~~[mv_ubuntu_2404](/docs/mv_ubuntu_2404.md)~~ | ~~Puesta en marcha de Ubuntu 24.04 desde cero; <br>PROBLEMAS con Wayland/x11 para Anydesk~~
 | [mv_ubuntu_2204](/docs/mv_ubuntu_2204.md)     | Configuración de Ubuntu para SETESUR
 | [asterisk](/docs/asterisk.md)                 | Instalación y configuración de Asterisk y Zoiper5
 
