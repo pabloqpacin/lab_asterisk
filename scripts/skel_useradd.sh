@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
 prep_skel(){
-    skel_dirs=('.config/nvim' 'Descargas' 'Documentos' 'Escritorio' 'Imágenes' 'Música' 'Plantillas' 'Público' 'Vídeos')
+    skel_dirs=('.config/nvim' '.local/share' 'Descargas' 'Documentos' 'Escritorio' 'Imágenes' 'Música' 'Plantillas' 'Público' 'Vídeos')
     for dir in ${skel_dirs[@]}; do
         if [ ! -d "/etc/skel/$dir" ]; then
             sudo mkdir -p "/etc/skel/$dir"
         fi
     done
 
-    custom_dirs=('.oh-my-zsh' 'dotfiles')                                      # '.nvm'
+    custom_dirs=('.oh-my-zsh' 'dotfiles' '.local/share/tldr')                   # '.nvm'
     for dir in ${custom_dirs[@]}; do
         if [ -d "$HOME/$dir" ] && [ ! -d "/etc/skel/$dir" ]; then
             sudo cp -r "$HOME/$dir" "/etc/skel/$dir"
@@ -19,7 +19,7 @@ prep_skel(){
 create_user_pass_home(){
     declare -A users
     users=(
-        # ["josu"]="prueba12"         # tiene que ser más de 8 chars
+        # ["josu"]="prueba12"         # tiene que ser de 8 o más chars
         # ["prueba"]="changeme"       # no puede coincidir name y pass
         ["setesur"]="prueba1234"
         # ["pablo.quevedo"]="changeme"
@@ -50,11 +50,6 @@ create_user_pass_home(){
                 ln -s /home/$username/dotfiles/.config/tmux /home/$username/.config
                 ln -s /home/$username/dotfiles/.config/bat /home/$username/.config
                 ln -s /home/$username/dotfiles/.config/lf /home/$username/.config
-
-                if [ ! -d /home/$username/.local/share/tldr ]; then
-                    mkdir -p /home/$username/.local/share
-                    tldr --update &>/dev/null
-                fi
             }"
         fi
     done
@@ -64,3 +59,4 @@ create_user_pass_home(){
 
 prep_skel
 create_user_pass_home
+# https://askubuntu.com/questions/1066239/how-to-change-default-dock-applications-for-new-users

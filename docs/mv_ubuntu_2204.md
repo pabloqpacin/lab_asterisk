@@ -9,9 +9,9 @@
     - [1. Administración de usuarios](#1-administración-de-usuarios)
       - [1.1 Creación de usuarios](#11-creación-de-usuarios)
       - [1.2 Definir sesión x11 (no Wayland)](#12-definir-sesión-x11-no-wayland)
-      - [1.3 Configuración del escritorio](#13-configuración-del-escritorio)
+      - [1.3 Configuración del escritorio (opcional)](#13-configuración-del-escritorio-opcional)
     - [2. Instalaciones importantes](#2-instalaciones-importantes)
-      - [2.1 Gestor de Contraseñas *KeePassXC*](#21-gestor-de-contraseñas-keepassxc)
+      - [2.1 Gestor de Contraseñas KeePassXC](#21-gestor-de-contraseñas-keepassxc)
       - [2.2 Implementación de Portainer para admon. Docker](#22-implementación-de-portainer-para-admon-docker)
   - [Implementación de Asterisk PBX](#implementación-de-asterisk-pbx)
     - [3.1 Asignación de IP fija](#31-asignación-de-ip-fija)
@@ -193,11 +193,11 @@ users=(
 
 #### 1.2 Definir sesión x11 (no Wayland)
 
-Para iniciar sesión en el Escritorio hay que introducir nombre de usuario y contraseña en una pantalla de login. Pues para que Anydesk funcione es vital seleccionar la opción `Ubuntu on Xorg` en esa pantalla de login.
+Para iniciar sesión en el Escritorio hay que introducir nombre de usuario y contraseña. Pues para que **Anydesk** funcione es vital seleccionar la opción `Ubuntu on Xorg` en la pantalla de login:
 
 ![001-login_sesion_xorg.png](/img/mv_ubuntu/001-login_sesion_xorg.png)
 
-#### 1.3 Configuración del escritorio
+#### 1.3 Configuración del escritorio (opcional)
 
 Básicamente...
 
@@ -220,7 +220,7 @@ Dock:
 
 ### 2. Instalaciones importantes
 
-#### 2.1 Gestor de Contraseñas *KeePassXC*
+#### 2.1 Gestor de Contraseñas KeePassXC
 
 Instalación de KeePassXC
 
@@ -267,7 +267,7 @@ KeePassXC:
 
 Docker ya debería estar instalado. Para poder interactuar con Docker, el usuario debe pertenecer al grupo `sudo` o al grupo `docker`.
 
-Según la [documentación de Docker Desktop](https://docs.docker.com/desktop/install/linux-install/): "*Docker Desktop en Linux ejecuta una máquina virtual (VM) que crea y utiliza un contexto Docker personalizado, `desktop-linux`, en el arranque.*". En nuestro caso, como el sistema Ubuntu ya está en una máquina virtual, se plantea la situación de **virtualización anidada**, algo bastante problemático y y cuya resolución en Windows suele dar lugar a incompatibilidades entre VirtualBox, WSL, Hyper-V y otras tecnologías de virtualización. ¿Conclusión? <u>No usaremos Docker Desktop</u>.
+Según la [documentación de Docker Desktop](https://docs.docker.com/desktop/install/linux-install/): "*Docker Desktop en Linux ejecuta una máquina virtual (VM) que crea y utiliza un contexto Docker personalizado, `desktop-linux`, en el arranque.*". En nuestro caso, como el sistema Ubuntu ya está en una máquina virtual, se plantea la situación de **virtualización anidada**, algo bastante problemático y cuya resolución en Windows suele dar lugar a incompatibilidades entre VirtualBox, WSL, Hyper-V y otras tecnologías de virtualización. ¿Conclusión? <u>No usaremos Docker Desktop</u>.
 
 En cambio, sí que podemos usar **Portainer** para administrar nuestro entorno Docker de forma gráfica. Podrá administrarlo cualquier usuario en tanto que pueda loguearse como usuario `admin` en Portainer.
 
@@ -303,13 +303,13 @@ Igualmente, recomendamos aprender algunos comandos esenciales de Docker, destaca
 
 ## Implementación de Asterisk PBX
 
-En este punto debemos tomar una instantánea para poder restaurar el sistema con facilidad.
+> En este punto deberíamos tomar una instantánea para poder restaurar el sistema con facilidad.
 
 ### 3.1 Asignación de IP fija
 
 Como la máquina virtual va a funcionar como servidor de telefonía VoIP en nuestra red local de SETESUR, recomendamos asignarle una dirección IP fija a la máquina. Recordamos que la interfaz de red de la máquina en VirtualBox debe ser configurada como **puente**.
 
-Los siguientes comandos harán que la máquina solicite la IP `192.168.1.205`. Habría que cambiarlo por `x.x.20.x` o cualquier otra subred oportuna (https://drive.google.com/drive/folders/1JncxM5iQ8sK1NHHOF-qRsPBwniL5-qR1).
+Los siguientes comandos harán que la máquina solicite la IP `192.168.1.205`. Habría que cambiarlo por `x.x.20.x` o cualquier otra subred oportuna (https://drive.google.com/file/d/1--VDJ9v3nNWf_GhUPMljPZvbgjEcQG6X/view).
 
 ```bash
 sudo mv /etc/netplan/01-network-manager-all.yaml{,.bak}
